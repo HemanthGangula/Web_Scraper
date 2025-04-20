@@ -7,7 +7,7 @@ async function scrape() {
     console.log(`Starting to scrape: ${url}`);
     
     const browser = await puppeteer.launch({
-        executablePath: '/usr/bin/chromium', 
+        executablePath: '/usr/bin/chromium',
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
@@ -20,7 +20,17 @@ async function scrape() {
     try {
         const page = await browser.newPage();
         console.log('Navigating to page...');
-        await page.goto(url, { waitUntil: 'networkidle2' });
+        
+        // Set a reasonable timeout
+        await page.setDefaultNavigationTimeout(30000);
+        
+        // Try to navigate to the URL
+        try {
+            await page.goto(url, { waitUntil: 'networkidle2' });
+        } catch (navigationError) {
+            throw new Error(`Invalid or unreachable URL: ${url}. Please check the URL and try again.`);
+        }
+        
         console.log('Extracting data...');
         
         const extractedData = await page.evaluate(() => {
@@ -61,12 +71,17 @@ async function scrape() {
         fs.writeFileSync('/app/scraped_data.json', manualJson);
         console.log('Scraping complete');
     } catch (error) {
-        console.error('Error during scraping:', error);
+        console.error('Error during scraping:', error.message);
+        
+        // Create a more user-friendly error message
+        const userFriendlyMessage = error.message.includes('Invalid or unreachable URL') 
+            ? error.message 
+            : `Error scraping URL: ${url}. Technical details: ${error.message}`;
         
         const errorJson = `{
   "title": "Error",
-  "metaDescription": ${JSON.stringify(error.message)},
   "url": ${JSON.stringify(url)},
+  "metaDescription": ${JSON.stringify(userFriendlyMessage)},
   "timestamp": ${JSON.stringify(new Date().toISOString())},
   "totalUrlsFound": 0,
   "sampleUrls": []

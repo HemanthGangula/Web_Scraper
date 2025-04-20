@@ -1,3 +1,4 @@
+# Stage 1: Node.js scraper with Puppeteer and Chromium
 FROM node:18-slim AS scraper
 
 RUN apt-get update && apt-get install -y \
@@ -18,8 +19,10 @@ COPY ./scraper/scrape.js ./
 
 RUN echo '{"placeholder": "This will be replaced when the container runs"}' > /app/scraped_data.json
 
-ENV SCRAPE_URL=https://example.com
+ENV SCRAPE_URL=https://exactspace.co/
 
+
+# Stage 2: Python Flask server
 FROM python:3.10-slim AS server
 
 WORKDIR /app
@@ -39,6 +42,7 @@ echo "Starting Flask server..."\n\
 python server.py' > /app/start.sh && chmod +x /app/start.sh
 
 EXPOSE 5000
+
 
 FROM python:3.10-slim AS final
 
