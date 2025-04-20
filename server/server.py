@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, Response
 import json
 import os
 
@@ -7,9 +7,12 @@ app = Flask(__name__)
 @app.route('/')
 def show_scraped_data():
     try:
+        # Read the raw file content
         with open('scraped_data.json', 'r') as file:
-            data = json.load(file)
-        return jsonify(data)
+            raw_content = file.read()
+        
+        # Return the raw JSON as a response with the correct content type
+        return Response(raw_content, mimetype='application/json')
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
