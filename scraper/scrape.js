@@ -24,12 +24,10 @@ async function scrape() {
         console.log('Extracting data...');
         
         const extractedData = await page.evaluate(() => {
-            // Get all links on the page
             const links = Array.from(document.querySelectorAll('a'))
                 .map(a => a.href)
-                .filter(href => href && href.startsWith('http')); // Filter out empty and non-http links
+                .filter(href => href && href.startsWith('http'));
             
-            // Remove duplicates
             const uniqueLinks = [...new Set(links)];
             
             return {
@@ -42,9 +40,8 @@ async function scrape() {
             };
         });
 
-        console.log('Saving data with precise order...');
+        console.log('Saving data...');
         
-        // Create JSON manually with hard-coded order
         let manualJson = `{
   "title": ${JSON.stringify(extractedData.title)},
   "metaDescription": ${JSON.stringify(extractedData.metaDescription)},
@@ -54,25 +51,18 @@ async function scrape() {
   "sampleUrls": [
 `;
 
-        // Add array items
         extractedData.sampleUrls.forEach((item, i) => {
             manualJson += `    ${JSON.stringify(item)}${i < extractedData.sampleUrls.length - 1 ? ',' : ''}\n`;
         });
 
         manualJson += `  ]
 }`;
-
-        // Debug information
-        console.log('Generated JSON with exact order:');
-        console.log(manualJson);
         
-        // Write the manually constructed JSON
         fs.writeFileSync('/app/scraped_data.json', manualJson);
         console.log('Scraping complete');
     } catch (error) {
         console.error('Error during scraping:', error);
         
-        // Create error JSON with same explicit ordering
         const errorJson = `{
   "title": "Error",
   "metaDescription": ${JSON.stringify(error.message)},
