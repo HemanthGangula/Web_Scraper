@@ -22,15 +22,27 @@ async function scrape() {
         console.log('Navigating to page...');
         await page.goto(url, { waitUntil: 'networkidle2' });
         console.log('Extracting data...');
+        
         const data = await page.evaluate(() => {
+            // Get all links on the page
+            const links = Array.from(document.querySelectorAll('a'))
+                .map(a => a.href)
+                .filter(href => href && href.startsWith('http')); // Filter out empty and non-http links
+            
+            // Remove duplicates
+            const uniqueLinks = [...new Set(links)];
+            
             return {
                 title: document.title,
-                heading: document.querySelector('h1')?.innerText || 'No h1 found',
                 url: window.location.href,
+                metaDescription: document.querySelector('meta[name="description"]')?.content || 'No description found',
                 timestamp: new Date().toISOString(),
-                metaDescription: document.querySelector('meta[name="description"]')?.content || 'No description found'
+                totalUrlsFound: uniqueLinks.length,
+                // Get first 10 URLs (or fewer if less than 10 found)
+                sampleUrls: uniqueLinks.slice(0, 10)
             };
         });
+        
         console.log('Saving data...');
         fs.writeFileSync('/app/scraped_data.json', JSON.stringify(data, null, 2));
         console.log('Scraping complete');
