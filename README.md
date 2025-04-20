@@ -73,7 +73,7 @@ To scrape the default URL (`https://exactspace.co/`) and host the data:
 docker run -p 5000:5000 web-scraper
 ```
 
-To scrape a custom URL:
+To scrape a custom URL: (Make sure update the "https://www.example.com" with your custom url)
 
 ```
 docker run -p 5000:5000 -e SCRAPE_URL="https://www.example.com" web-scraper
@@ -121,6 +121,11 @@ If an invalid or unreachable URL is provided, the script will log a warning:
 Error during scraping: Invalid or unreachable URL. Please check the URL and try again.
 ```
 
-In this case, the Flask server will still start, but the output JSON may not contain valid data. Users are advised to provide a valid, reachable URL to get accurate results.
+## Closing Notes
+
+Thank you for reviewing my assignment. Please feel free to reach out with any questions or feedback. I am looking forward to the opportunity to contribute to your team and continue improving my skills.
+
+
+**Maintained by [Hemanth Gangula](https://github.com/HemanthGangula)**
 
 
